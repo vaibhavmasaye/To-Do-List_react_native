@@ -1,18 +1,36 @@
 export const COLORS = {
-  primary: '#63f1bbff',  // Updated to more modern indigo
-  primaryLight: '#00aaffff',
-  secondary: '#60A5FA',
-  accent: '#F87171',
-  background: '#F9FAFB',
-  text: '#1F2937',
-  textSecondary: '#6B7280',
-  border: '#E5E7EB',
+  // Modern color palette
+  primary: '#6366F1',       // Indigo
+  primaryLight: '#C7D2FE',  // Light indigo
+  primaryDark: '#4F46E5',   // Dark indigo
+  secondary: '#EC4899',     // Pink
+  accent: '#F59E0B',       // Amber
+  
+  // Backgrounds
+  background: '#F8FAFC',    // Very light blue-gray
+  surface: '#FFFFFF',       // Pure white
+  lightGray: '#F1F5F9',     // Light blue-gray
+  
+  // Text
+  text: '#1E293B',         // Dark blue-gray
+  textSecondary: '#64748B', // Medium blue-gray
+  textTertiary: '#94A3B8',  // Light blue-gray
+  
+  // Borders
+  border: '#E2E8F0',       // Light border
+  borderDark: '#CBD5E1',   // Darker border
+  
+  // Status
+  success: '#10B981',      // Emerald
+  warning: '#F59E0B',      // Amber
+  danger: '#EF4444',       // Red
+  
+  // Special
   white: '#FFFFFF',
   black: '#000000',
-  success: '#10B981',
-  warning: '#F59E0B',
-  danger: '#EF4444',
+  transparent: 'transparent',
 };
+
 
 export const SIZES = {
   small: 12,
@@ -48,6 +66,16 @@ export const SHADOWS = {
     },
     shadowOpacity: 0.25,
     shadowRadius: 5.84,
+    elevation: 5,
+  },
+  large: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 5,
   },
 };

@@ -55,34 +55,31 @@ export const TaskListScreen: React.FC<TaskListScreenProps> = ({
     navigation.navigate('TaskDetail', { taskId });
   };
 
-  // Add this function to group tasks by date
-const groupTasksByDate = (tasks: Task[]) => {
-  const grouped: {[key: string]: Task[]} = {};
-  
-  tasks.forEach(task => {
-    // Use updatedAt if it exists and is later than createdAt
-    const taskDate = task.updatedAt && task.updatedAt > task.createdAt 
-      ? task.updatedAt 
-      : task.createdAt;
+  const groupTasksByDate = (tasks: Task[]) => {
+    const grouped: {[key: string]: Task[]} = {};
     
-    const dateKey = format(new Date(taskDate), 'yyyy-MM-dd');
-    if (!grouped[dateKey]) {
-      grouped[dateKey] = [];
-    }
-    grouped[dateKey].push(task);
-  });
+    tasks.forEach(task => {
+      const taskDate = task.updatedAt && task.updatedAt > task.createdAt 
+        ? task.updatedAt 
+        : task.createdAt;
+      
+      const dateKey = format(new Date(taskDate), 'yyyy-MM-dd');
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(task);
+    });
 
-  return Object.entries(grouped).sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime());
-};
+    return Object.entries(grouped).sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime());
+  };
 
-// Update the render section
-const groupedTasks = groupTasksByDate(tasks);
+  const groupedTasks = groupTasksByDate(tasks);
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{ marginTop: SPACING.medium }}>Loading your tasks...</Text>
+        <Text style={styles.loadingText}>Loading your tasks...</Text>
       </View>
     );
   }
@@ -93,22 +90,25 @@ const groupedTasks = groupTasksByDate(tasks);
         <EmptyState />
       ) : (
         <Animated.FlatList
-           data={groupedTasks}
-           keyExtractor={([date]) => date}
+          data={groupedTasks}
+          keyExtractor={([date]) => date}
           renderItem={({ item: [date, tasks] }) => (
-           <View>
-            <Text style={styles.dateHeader}>
-              {format(new Date(date), 'MMMM d, yyyy')}
-            </Text>
-            {tasks.map(task => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onPress={() => navigateToTaskDetail(task.id)}
-                onDelete={() => setTaskToDelete(task.id)}
-              />
-            ))}
-          </View>
+            <View style={styles.dateSection}>
+              <View style={styles.dateHeaderContainer}>
+                <Text style={styles.dateHeader}>
+                  {format(new Date(date), 'EEEE, MMMM d')}
+                </Text>
+                <View style={styles.dateLine} />
+              </View>
+              {tasks.map(task => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  onPress={() => navigateToTaskDetail(task.id)}
+                  onDelete={() => setTaskToDelete(task.id)}
+                />
+              ))}
+            </View>
           )}
           contentContainerStyle={[
             styles.listContent,
@@ -127,8 +127,9 @@ const groupedTasks = groupTasksByDate(tasks);
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigateToTaskDetail()}
+        activeOpacity={0.8}
       >
-        <MaterialIcons name="add" size={30} color={COLORS.white} />
+        <MaterialIcons name="add" size={28} color={COLORS.white} />
       </TouchableOpacity>
 
       <ConfirmationModal
@@ -146,14 +147,43 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    paddingTop: SPACING.medium,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: COLORS.background,
+  },
+  loadingText: {
+    marginTop: SPACING.medium,
+    color: COLORS.textSecondary,
+    fontSize: SIZES.medium,
+    fontWeight: '500',
   },
   listContent: {
-    padding: SPACING.medium,
+    paddingHorizontal: SPACING.large,
+    paddingBottom: SPACING.large * 2,
+  },
+  dateSection: {
+    marginBottom: SPACING.large,
+  },
+  dateHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.medium,
+    paddingHorizontal: SPACING.small,
+  },
+  dateHeader: {
+    fontSize: SIZES.medium,
+    fontWeight: '600',
+    color: COLORS.primary,
+    marginRight: SPACING.small,
+  },
+  dateLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: COLORS.border,
   },
   addButton: {
     position: 'absolute',
@@ -165,16 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    ...SHADOWS.medium,
-  },
-  dateHeader: {
-    fontSize: SIZES.medium,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    paddingVertical: SPACING.small,
-    paddingHorizontal: SPACING.medium,
-    backgroundColor: COLORS.background,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    ...SHADOWS.large,
+    elevation: 6,
   },
 });
