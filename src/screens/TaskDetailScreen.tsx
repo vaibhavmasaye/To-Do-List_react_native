@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, ScrollView, Alert, Image } from 'react-native';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+  Alert,
+  Image,
+} from 'react-native';
 import { useTasks } from '../hooks/useTasks';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -9,14 +18,18 @@ import { MediaPicker } from '../components/MediaPicker';
 import { Video, ResizeMode } from 'expo-av';
 import { TaskFormData } from '../types/task';
 import * as Animatable from 'react-native-animatable';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type TaskDetailScreenRouteProp = RouteProp<RootStackParamList, 'TaskDetail'>;
 
 export const TaskDetailScreen: React.FC = () => {
   const { params } = useRoute<TaskDetailScreenRouteProp>();
   const navigation = useNavigation();
-  const { tasks, addTask, updateTask, pickMedia, takePhoto , loadTasks} = useTasks();
-  
+  const insets = useSafeAreaInsets();
+
+  const { tasks, addTask, updateTask, pickMedia, takePhoto, loadTasks } = useTasks();
+
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
@@ -27,7 +40,7 @@ export const TaskDetailScreen: React.FC = () => {
 
   useEffect(() => {
     if (params.taskId) {
-      const task = tasks.find(t => t.id === params.taskId);
+      const task = tasks.find((t) => t.id === params.taskId);
       if (task) {
         setFormData({
           title: task.title,
@@ -50,7 +63,7 @@ export const TaskDetailScreen: React.FC = () => {
       }
 
       if (media) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           mediaUri: media.uri,
           mediaType: media.type,
@@ -62,7 +75,7 @@ export const TaskDetailScreen: React.FC = () => {
   };
 
   const handleRemoveMedia = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       mediaUri: undefined,
       mediaType: undefined,
@@ -81,7 +94,7 @@ export const TaskDetailScreen: React.FC = () => {
       } else {
         await addTask(formData);
       }
-      await loadTasks(); // Refresh tasks before navigating back
+      await loadTasks();
       navigation.goBack();
     } catch (error) {
       Alert.alert('Error', 'Failed to save task');
@@ -89,73 +102,115 @@ export const TaskDetailScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <TextInput
-        style={styles.titleInput}
-        placeholder="Title *"
-        value={formData.title}
-        onChangeText={(text) => setFormData(prev => ({ ...prev, title: text }))}
-        placeholderTextColor={COLORS.textSecondary}
-      />
-
-      <TextInput
-        style={styles.descriptionInput}
-        placeholder="Description"
-        value={formData.description}
-        onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
-        multiline
-        numberOfLines={4}
-        placeholderTextColor={COLORS.textSecondary}
-      />
-
-      {formData.mediaUri && (
-        <Animatable.View animation="fadeIn" duration={500} style={styles.mediaContainer}>
-          {formData.mediaType === 'image' ? (
-            <Image 
-              source={{ uri: formData.mediaUri }} 
-              style={styles.media} 
-              resizeMode={ResizeMode.CONTAIN}
-            />
-          ) : (
-            <Video
-              source={{ uri: formData.mediaUri }}
-              style={styles.media}
-              resizeMode={ResizeMode.CONTAIN}
-              useNativeControls
-              isLooping
-            />
-          )}
-          <TouchableOpacity 
-            style={styles.removeMediaButton} 
-            onPress={handleRemoveMedia}
-          >
-            <MaterialIcons name="close" size={20} color={COLORS.white} />
-          </TouchableOpacity>
-        </Animatable.View>
-      )}
-
-      <MediaPicker onSelect={handleMediaSelect} />
-
-      <TouchableOpacity 
-        style={styles.saveButton} 
-        onPress={handleSubmit}
+    <View style={styles.container}>
+      {/* Custom Gradient Header */}
+      <LinearGradient
+        colors={[COLORS.primary, COLORS.primaryLight]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.header, { paddingTop: insets.top + SPACING.small }]}
       >
-        <Text style={styles.saveButtonText}>
-          {isEditing ? 'Update Task' : 'Add Task'}
+        <Text style={styles.headerTitle}>
+          {isEditing ? 'Edit Task' : 'New Task'}
         </Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity
+          style={styles.headerBack}
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+      </LinearGradient>
+
+      {/* Form */}
+      <ScrollView
+        style={styles.form}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <TextInput
+          style={styles.titleInput}
+          placeholder="Title *"
+          value={formData.title}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, title: text }))
+          }
+          placeholderTextColor={COLORS.textSecondary}
+        />
+
+        <TextInput
+          style={styles.descriptionInput}
+          placeholder="Description"
+          value={formData.description}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, description: text }))
+          }
+          multiline
+          numberOfLines={4}
+          placeholderTextColor={COLORS.textSecondary}
+        />
+
+        {formData.mediaUri && (
+          <Animatable.View
+            animation="fadeIn"
+            duration={500}
+            style={styles.mediaContainer}
+          >
+            {formData.mediaType === 'image' ? (
+              <Image
+                source={{ uri: formData.mediaUri }}
+                style={styles.media}
+                resizeMode={ResizeMode.CONTAIN}
+              />
+            ) : (
+              <Video
+                source={{ uri: formData.mediaUri }}
+                style={styles.media}
+                resizeMode={ResizeMode.CONTAIN}
+                useNativeControls
+                isLooping
+              />
+            )}
+            <TouchableOpacity
+              style={styles.removeMediaButton}
+              onPress={handleRemoveMedia}
+            >
+              <MaterialIcons name="close" size={20} color={COLORS.white} />
+            </TouchableOpacity>
+          </Animatable.View>
+        )}
+
+        <MediaPicker onSelect={handleMediaSelect} />
+
+        <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
+          <Text style={styles.saveButtonText}>
+            {isEditing ? 'Update Task' : 'Add Task'}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
+  container: { flex: 1, backgroundColor: COLORS.background },
+  header: {
+    paddingHorizontal: SPACING.medium,
+    paddingBottom: SPACING.small,
+    position: 'relative',
   },
-  contentContainer: {
-    padding: SPACING.large,
+  headerTitle: {
+    fontSize: SIZES.large,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    textAlign: 'center',
   },
+  headerBack: {
+    position: 'absolute',
+    left: SPACING.medium,
+    top: '50%',
+    transform: [{ translateY: -12 }],
+  },
+  form: { flex: 1 },
+  contentContainer: { padding: SPACING.large },
   titleInput: {
     fontSize: SIZES.large,
     fontWeight: 'bold',
@@ -186,10 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  media: {
-    width: '100%',
-    height: '100%',
-  },
+  media: { width: '100%', height: '100%' },
   removeMediaButton: {
     position: 'absolute',
     top: 10,

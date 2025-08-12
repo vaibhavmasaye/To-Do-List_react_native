@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, TouchableOpacity, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { 
+  View, 
+  FlatList, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Text, 
+  ActivityIndicator,
+  Animated,
+  StyleProp,
+  ViewStyle
+} from 'react-native';
 import { useTasks } from '../hooks/useTasks';
 import { TaskItem } from '../components/TaskItem';
 import { EmptyState } from '../components/EmptyState';
@@ -8,14 +18,29 @@ import { COLORS, SHADOWS, SPACING } from '../constants/theme';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useNavigation ,useIsFocused} from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+
+type TaskListScreenProps = {
+  scrollY?: Animated.Value;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+};
 
 type TaskListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'TaskList'>;
 
-export const TaskListScreen: React.FC = () => {
-  const { tasks, isLoading, deleteTask ,loadTasks} = useTasks();
+export const TaskListScreen: React.FC<TaskListScreenProps> = ({ 
+  scrollY, 
+  contentContainerStyle 
+}) => {
+  const { tasks, isLoading, deleteTask, loadTasks } = useTasks();
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const navigation = useNavigation<TaskListScreenNavigationProp>();
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused) {
+      loadTasks();
+    }
+  }, [isFocused]);
 
   const handleDelete = async () => {
     if (taskToDelete) {
@@ -28,31 +53,21 @@ export const TaskListScreen: React.FC = () => {
     navigation.navigate('TaskDetail', { taskId });
   };
 
-  const isFocused = useIsFocused(); // Track screen focus
-
-  // Add this useEffect to reload tasks when screen comes into focus
-  useEffect(() => {
-    if (isFocused) {
-      loadTasks();
-    }
-  }, [isFocused]);
-
-
- if (isLoading) {
-  return (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={COLORS.primary} />
-      <Text style={{ marginTop: SPACING.medium }}>Loading your tasks...</Text>
-    </View>
-  );
-}
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ marginTop: SPACING.medium }}>Loading your tasks...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       {tasks.length === 0 ? (
         <EmptyState />
       ) : (
-        <FlatList
+        <Animated.FlatList
           data={tasks}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -62,7 +77,17 @@ export const TaskListScreen: React.FC = () => {
               onDelete={() => setTaskToDelete(item.id)}
             />
           )}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            contentContainerStyle
+          ]}
+          scrollEventThrottle={16}
+          onScroll={
+            scrollY ? Animated.event(
+              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+              { useNativeDriver: true }
+            ) : undefined
+          }
         />
       )}
 

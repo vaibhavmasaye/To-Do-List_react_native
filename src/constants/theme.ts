@@ -1,6 +1,6 @@
 export const COLORS = {
-  primary: '#6366F1',  // Updated to more modern indigo
-  primaryLight: '#2849eeff',
+  primary: '#6389f1ff',  // Updated to more modern indigo
+  primaryLight: '#00eeffff',
   secondary: '#60A5FA',
   accent: '#F87171',
   background: '#F9FAFB',
