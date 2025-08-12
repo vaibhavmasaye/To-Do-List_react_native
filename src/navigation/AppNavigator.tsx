@@ -16,7 +16,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const AppNavigator = () => {
-  return (
+  return (    
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="TaskList"
@@ -31,14 +31,6 @@ export const AppNavigator = () => {
         <Stack.Screen
           name="TaskDetail"
           component={TaskDetailScreen}
-          options={({ route }) => ({
-            headerShown: true,
-            title: route.params.taskId ? 'Edit Task' : 'New Task',
-            headerStyle: {
-              backgroundColor: COLORS.primary,
-            },
-            headerTintColor: COLORS.white,
-          })}
         />
       </Stack.Navigator>
     </NavigationContainer>
@@ -134,8 +126,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: 'transparent',
-    borderColor:'red',
-    borderWidth: 2,
   },
   gradient: {
     flex: 1,

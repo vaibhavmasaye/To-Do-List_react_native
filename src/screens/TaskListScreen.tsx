@@ -14,11 +14,13 @@ import { useTasks } from '../hooks/useTasks';
 import { TaskItem } from '../components/TaskItem';
 import { EmptyState } from '../components/EmptyState';
 import { MaterialIcons } from '@expo/vector-icons';
-import { COLORS, SHADOWS, SPACING } from '../constants/theme';
+import { COLORS, SHADOWS, SIZES, SPACING } from '../constants/theme';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { format } from 'date-fns';
+import { Task } from '../types/task';
 
 type TaskListScreenProps = {
   scrollY?: Animated.Value;
@@ -53,6 +55,24 @@ export const TaskListScreen: React.FC<TaskListScreenProps> = ({
     navigation.navigate('TaskDetail', { taskId });
   };
 
+  // Add this function to group tasks by date
+const groupTasksByDate = (tasks: Task[]) => {
+  const grouped: {[key: string]: Task[]} = {};
+  
+  tasks.forEach(task => {
+    const dateKey = format(new Date(task.createdAt), 'yyyy-MM-dd');
+    if (!grouped[dateKey]) {
+      grouped[dateKey] = [];
+    }
+    grouped[dateKey].push(task);
+  });
+
+  return Object.entries(grouped).sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime());
+};
+
+// Update the render section
+const groupedTasks = groupTasksByDate(tasks);
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -68,14 +88,22 @@ export const TaskListScreen: React.FC<TaskListScreenProps> = ({
         <EmptyState />
       ) : (
         <Animated.FlatList
-          data={tasks}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TaskItem
-              task={item}
-              onPress={() => navigateToTaskDetail(item.id)}
-              onDelete={() => setTaskToDelete(item.id)}
-            />
+           data={groupedTasks}
+           keyExtractor={([date]) => date}
+          renderItem={({ item: [date, tasks] }) => (
+           <View>
+            <Text style={styles.dateHeader}>
+              {format(new Date(date), 'MMMM d, yyyy')}
+            </Text>
+            {tasks.map(task => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onPress={() => navigateToTaskDetail(task.id)}
+                onDelete={() => setTaskToDelete(task.id)}
+              />
+            ))}
+          </View>
           )}
           contentContainerStyle={[
             styles.listContent,
@@ -133,5 +161,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...SHADOWS.medium,
+  },
+  dateHeader: {
+    fontSize: SIZES.medium,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    backgroundColor: COLORS.background,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
 });

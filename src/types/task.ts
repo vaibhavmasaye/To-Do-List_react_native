@@ -6,8 +6,8 @@ export interface Task {
   description?: string;
   mediaUri?: string;
   mediaType?: MediaType;
-  createdAt: number;
-  updatedAt?: number;
+  createdAt: number; // timestamp
+  updatedAt?: number; // timestamp
 }
 
-export type TaskFormData = Omit<Task, 'id' | 'createdAt' | 'updatedAt'>;
+export type TaskFormData = Omit<Task, 'id'>;

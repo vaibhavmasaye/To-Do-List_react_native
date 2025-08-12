@@ -30,24 +30,26 @@ export const TaskDetailScreen: React.FC = () => {
 
   const { tasks, addTask, updateTask, pickMedia, takePhoto, loadTasks } = useTasks();
 
-  const [formData, setFormData] = useState<TaskFormData>({
-    title: '',
-    description: '',
-    mediaUri: undefined,
-    mediaType: undefined,
-  });
+const [formData, setFormData] = useState<TaskFormData>({
+  title: '',
+  description: '',
+  mediaUri: undefined,
+  mediaType: undefined,
+  createdAt: Date.now(), // Initialize with current time
+});
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (params.taskId) {
       const task = tasks.find((t) => t.id === params.taskId);
       if (task) {
-        setFormData({
-          title: task.title,
-          description: task.description || '',
-          mediaUri: task.mediaUri,
-          mediaType: task.mediaType || undefined,
-        });
+         setFormData({
+        title: task.title,
+        description: task.description || '',
+        mediaUri: task.mediaUri,
+        mediaType: task.mediaType || undefined,
+        createdAt: task.createdAt,
+      });
         setIsEditing(true);
       }
     }
@@ -83,44 +85,66 @@ export const TaskDetailScreen: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.title.trim()) {
-      Alert.alert('Validation', 'Title is required');
-      return;
-    }
+  if (!formData.title.trim()) {
+    Alert.alert('Validation', 'Title is required');
+    return;
+  }
 
-    try {
-      if (isEditing && params.taskId) {
-        await updateTask(params.taskId, formData);
-      } else {
-        await addTask(formData);
-      }
-      await loadTasks();
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to save task');
+  try {
+    const now = Date.now();
+    if (isEditing && params.taskId) {
+      await updateTask(params.taskId, {
+        ...formData,
+        updatedAt: now
+      });
+    } else {
+      await addTask({
+        ...formData,
+        createdAt: now,
+        updatedAt: now
+      });
     }
-  };
+    await loadTasks();
+    navigation.goBack();
+  } catch (error) {
+    Alert.alert('Error', 'Failed to save task');
+  }
+};
+
+  const headerHeight = 50;
 
   return (
     <View style={styles.container}>
       {/* Custom Gradient Header */}
-      <LinearGradient
-        colors={[COLORS.primary, COLORS.primaryLight]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={[styles.header, { paddingTop: insets.top + SPACING.small }]}
-      >
-        <Text style={styles.headerTitle}>
-          {isEditing ? 'Edit Task' : 'New Task'}
-        </Text>
-        <TouchableOpacity
-          style={styles.headerBack}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={24} color={COLORS.white} />
-        </TouchableOpacity>
-      </LinearGradient>
-
+     <LinearGradient
+  colors={[COLORS.primary, COLORS.primaryLight]}
+  start={{ x: 0, y: 0 }}
+  end={{ x: 1, y: 0 }}
+  style={[styles.header, {
+    height: headerHeight,
+    paddingBottom: SPACING.small,
+    paddingTop: SPACING.small,
+  }]}
+>
+  <View style={styles.headerContent}>
+    <TouchableOpacity
+      style={styles.headerBack}
+      onPress={() => navigation.goBack()}
+    >
+      <MaterialIcons name="arrow-back" size={24} color={COLORS.white} />
+    </TouchableOpacity>
+    
+    {/* Added marginRight to create gap between arrow and text */}
+    <View style={{ width: SPACING.small }} />
+    
+    <Text style={styles.headerTitle}>
+      {isEditing ? 'Edit Task' : 'New Task'}
+    </Text>
+    
+    {/* Empty view to balance the layout */}
+    <View style={{ width: 24 }} />
+  </View>
+</LinearGradient>
       {/* Form */}
       <ScrollView
         style={styles.form}
@@ -195,19 +219,27 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: SPACING.medium,
     paddingBottom: SPACING.small,
-    position: 'relative',
   },
-  headerTitle: {
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: SPACING.small, // Added horizontal padding
+  },
+   headerTitle: {
     fontSize: SIZES.large,
     fontWeight: 'bold',
     color: COLORS.white,
     textAlign: 'center',
+    flex: 1,
+    marginLeft: SPACING.small, // Added left margin for more spacing
   },
   headerBack: {
-    position: 'absolute',
-    left: SPACING.medium,
-    top: '50%',
-    transform: [{ translateY: -12 }],
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   form: { flex: 1 },
   contentContainer: { padding: SPACING.large },
