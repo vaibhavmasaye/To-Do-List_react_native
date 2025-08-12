@@ -10,6 +10,7 @@ export const COLORS = {
   background: '#F8FAFC',    // Very light blue-gray
   surface: '#FFFFFF',       // Pure white
   lightGray: '#F1F5F9',     // Light blue-gray
+  lightPrimary: '#E0E7FF',
   
   // Text
   text: '#1E293B',         // Dark blue-gray

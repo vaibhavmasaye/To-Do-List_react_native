@@ -16,14 +16,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onPress, onDelete }) =
   return (
     <Animatable.View 
       animation="fadeInUp"
-      duration={300}
+      duration={500}
       style={styles.container}
     >
-      <TouchableOpacity 
-        onPress={onPress} 
-        style={styles.content}
-        activeOpacity={0.9}
-      >
+      <TouchableOpacity onPress={onPress} style={styles.content}>
         <View style={styles.textContainer}>
           <View style={styles.headerRow}>
             <Text style={styles.title} numberOfLines={1}>{task.title}</Text>
@@ -38,23 +34,14 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onPress, onDelete }) =
             <Text style={styles.description} numberOfLines={2}>{task.description}</Text>
           )}
           
-          <View style={styles.footer}>
-            {task.updatedAt && task.updatedAt !== task.createdAt && (
-              <View style={styles.updatedTag}>
-                <MaterialIcons name="update" size={14} color={COLORS.white} />
-                <Text style={styles.updatedText}>
-                  Updated {format(new Date(task.updatedAt), 'MMM d, h:mm a')}
-                </Text>
-              </View>
-            )}
-            <View style={styles.mediaTypeTag}>
-              {task.mediaType === 'image' ? (
-                <MaterialIcons name="image" size={14} color={COLORS.textTertiary} />
-              ) : task.mediaType === 'video' ? (
-                <MaterialIcons name="videocam" size={14} color={COLORS.textTertiary} />
-              ) : null}
+          {task.updatedAt && task.updatedAt !== task.createdAt && (
+            <View style={styles.updatedTag}>
+              <MaterialIcons name="update" size={14} color={COLORS.white} />
+              <Text style={styles.updatedText}>
+                Updated {format(new Date(task.updatedAt), 'MMM d, h:mm a')}
+              </Text>
             </View>
-          </View>
+          )}
         </View>
         
         {task.mediaUri && (
@@ -67,7 +54,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onPress, onDelete }) =
               />
             ) : (
               <View style={styles.videoPlaceholder}>
-                <MaterialIcons name="play-circle" size={28} color={COLORS.white} />
+                <MaterialIcons name="videocam" size={20} color={COLORS.white} />
               </View>
             )}
           </View>
@@ -79,7 +66,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onPress, onDelete }) =
         style={styles.deleteButton}
         hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
       >
-        <MaterialIcons name="more-vert" size={20} color={COLORS.textTertiary} />
+        <MaterialIcons name="delete-outline" size={22} color={COLORS.textSecondary} />
       </TouchableOpacity>
     </Animatable.View>
   );
@@ -89,13 +76,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
-    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
     padding: SPACING.medium,
     marginBottom: SPACING.medium,
-    ...SHADOWS.medium,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    ...SHADOWS.small,
+    borderLeftWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
   },
   content: {
     flex: 1,
@@ -125,43 +113,36 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: SPACING.small,
   },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   dateBadge: {
-    backgroundColor: COLORS.lightGray,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: COLORS.lightPrimary,
+    paddingHorizontal: SPACING.small,
+    paddingVertical: 2,
     borderRadius: 12,
   },
   dateText: {
     fontSize: SIZES.small - 2,
-    color: COLORS.textSecondary,
+    color: COLORS.primary,
     fontWeight: '500',
   },
   updatedTag: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 10,
+    alignSelf: 'flex-start',
+    paddingHorizontal: SPACING.small,
     paddingVertical: 4,
     borderRadius: 12,
+    marginTop: SPACING.small / 2,
   },
   updatedText: {
     fontSize: SIZES.small - 2,
     color: COLORS.white,
     marginLeft: 4,
-    fontWeight: '500',
-  },
-  mediaTypeTag: {
-    padding: 4,
   },
   mediaPreview: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
+    width: 72,
+    height: 72,
+    borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: COLORS.lightGray,
   },
@@ -172,11 +153,12 @@ const styles = StyleSheet.create({
   videoPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   deleteButton: {
     marginLeft: SPACING.small,
+    padding: 4,
   },
 });

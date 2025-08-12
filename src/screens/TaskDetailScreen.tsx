@@ -100,8 +100,7 @@ const [formData, setFormData] = useState<TaskFormData>({
     } else {
       await addTask({
         ...formData,
-        createdAt: now,
-        updatedAt: now
+        createdAt: now
       });
     }
     await loadTasks();

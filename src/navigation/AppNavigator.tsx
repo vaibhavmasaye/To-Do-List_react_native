@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import { NavigationContainer  } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TaskListScreen } from '../screens/TaskListScreen';
 import { TaskDetailScreen } from '../screens/TaskDetailScreen';
 import { COLORS } from '../constants/theme';
-import { Animated, StyleSheet, StatusBar, View } from 'react-native';
+import { Animated, StyleSheet, StatusBar, View ,Text} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -37,84 +37,43 @@ export const AppNavigator = () => {
   );
 };
 
-
 const TaskListWithCustomHeader = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
-
-  const headerHeight = 40 + insets.top;
-
-  const titleTranslateY = scrollY.interpolate({
-    inputRange: [0, headerHeight],
-    outputRange: [0, -headerHeight / 3],
-    extrapolate: 'clamp',
-  });
-
-  const titleScale = scrollY.interpolate({
-    inputRange: [0, headerHeight],
-    outputRange: [1, 0.9],
-    extrapolate: 'clamp',
-  });
-
-  const subtitleOpacity = scrollY.interpolate({
-    inputRange: [0, headerHeight / 2],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
+  const headerHeight = 40 + insets.top; // Increased height to accommodate subtitle
 
   return (
     <View style={styles.container}>
-       <StatusBar 
+      <StatusBar 
         translucent 
         backgroundColor="transparent" 
         barStyle="light-content" 
       />
 
-      {/* Header */}
-      <Animated.View
-        style={[
-          styles.header,
-          {
-            height: headerHeight,
-            backgroundColor: 'transparent', 
-          },
-        ]}
-      >
+      {/* Fixed Header - No Animation */}
+      <View style={[styles.header, { height: headerHeight }]}>
         <LinearGradient
           colors={[COLORS.primary, COLORS.primaryLight]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.gradient}
         >
-          <View style={styles.headerContent}>
-            <Animated.Text
-              style={[
-                styles.title,
-                {
-                  transform: [
-                    { translateY: titleTranslateY },
-                    { scale: titleScale },
-                  ],
-                },
-              ]}
-            >
+          <View style={[styles.headerContent]}>
+            <Text style={styles.title}>
               TaskMaster Pro
-            </Animated.Text>
-
-            <Animated.Text
-              style={[
-                styles.subtitle,
-                { opacity: subtitleOpacity },
-              ]}
-            >
+            </Text>
+            <Text style={styles.subtitle}>
               Organize your day like a pro ✨
-            </Animated.Text>
+            </Text>
           </View>
         </LinearGradient>
-      </Animated.View>
+      </View>
 
-      {/* List */}
-      <TaskListScreen scrollY={scrollY} />
+      {/* List with padding to account for header */}
+      <TaskListScreen 
+        scrollY={scrollY}
+        contentContainerStyle={{ paddingTop: headerHeight }}
+      />
     </View>
   );
 };
@@ -122,10 +81,14 @@ const TaskListWithCustomHeader = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-     backgroundColor: 'transparent', 
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
   },
   gradient: {
     flex: 1,
@@ -136,14 +99,14 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.white,
   },
   subtitle: {
     fontSize: 12,
     color: COLORS.white,
-    opacity: 0.85,
+    opacity: 0.8,
     marginTop: 2,
   },
 });
