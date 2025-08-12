@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS, SIZES, SPACING, SHADOWS } from '../constants/theme';
 import { Task } from '../types/task';
 import * as Animatable from 'react-native-animatable';
+import { format } from 'date-fns';
 
 type TaskItemProps = {
   task: Task;
@@ -19,11 +20,18 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onPress, onDelete }) =
       style={styles.container}
     >
       <TouchableOpacity onPress={onPress} style={styles.content}>
-        <View style={styles.textContainer}>
+       <View style={styles.textContainer}>
           <Text style={styles.title} numberOfLines={1}>{task.title}</Text>
           {task.description && (
             <Text style={styles.description} numberOfLines={2}>{task.description}</Text>
           )}
+          <View style={styles.dateContainer}>
+            {task.updatedAt && task.updatedAt !== task.createdAt && (
+              <Text style={styles.dateText}>
+                • Updated: {format(new Date(task.updatedAt), 'MMM d, yyyy h:mm a')}
+              </Text>
+            )}
+          </View>
         </View>
         
         {task.mediaUri && (
@@ -79,6 +87,14 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: SIZES.small,
+    color: COLORS.textSecondary,
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    marginTop: SPACING.small,
+  },
+  dateText: {
+    fontSize: SIZES.small - 2,
     color: COLORS.textSecondary,
   },
   mediaPreview: {

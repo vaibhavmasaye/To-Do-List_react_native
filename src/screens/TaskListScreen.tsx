@@ -60,7 +60,12 @@ const groupTasksByDate = (tasks: Task[]) => {
   const grouped: {[key: string]: Task[]} = {};
   
   tasks.forEach(task => {
-    const dateKey = format(new Date(task.createdAt), 'yyyy-MM-dd');
+    // Use updatedAt if it exists and is later than createdAt
+    const taskDate = task.updatedAt && task.updatedAt > task.createdAt 
+      ? task.updatedAt 
+      : task.createdAt;
+    
+    const dateKey = format(new Date(taskDate), 'yyyy-MM-dd');
     if (!grouped[dateKey]) {
       grouped[dateKey] = [];
     }
