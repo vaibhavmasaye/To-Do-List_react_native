@@ -55,10 +55,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.white,
-    borderRadius: 8,
+    borderRadius: 12,
     padding: SPACING.medium,
     marginBottom: SPACING.medium,
     ...SHADOWS.medium,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
   },
   content: {
     flex: 1,

@@ -6,7 +6,9 @@ const TASKS_KEY = '@tasks';
 
 export const saveTasks = async (tasks: Task[]): Promise<void> => {
   try {
-    await AsyncStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+    console.log('Saving tasks:', tasks); // Debug log
+    const jsonValue = JSON.stringify(tasks);
+    await AsyncStorage.setItem(TASKS_KEY, jsonValue);
   } catch (error) {
     console.error('Failed to save tasks', error);
     throw error;
@@ -15,8 +17,9 @@ export const saveTasks = async (tasks: Task[]): Promise<void> => {
 
 export const loadTasks = async (): Promise<Task[]> => {
   try {
-    const tasksJson = await AsyncStorage.getItem(TASKS_KEY);
-    return tasksJson ? JSON.parse(tasksJson) : [];
+    const jsonValue = await AsyncStorage.getItem(TASKS_KEY);
+    console.log('Loaded tasks:', jsonValue); // Debug log
+    return jsonValue != null ? JSON.parse(jsonValue) : [];
   } catch (error) {
     console.error('Failed to load tasks', error);
     throw error;

@@ -37,15 +37,15 @@ export const useTasks = () => {
 
   const pickMedia = useCallback(async (type: 'image' | 'video') => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     if (!permissionResult.granted) {
       Alert.alert('Permission required', 'We need access to your media library to attach files');
       return null;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: type === 'image' 
-        ? ImagePicker.MediaTypeOptions.Images 
+      mediaTypes: type === 'image'
+        ? ImagePicker.MediaTypeOptions.Images
         : ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
       quality: 0.7,
@@ -54,7 +54,7 @@ export const useTasks = () => {
     if (result.canceled) return null;
 
     const file = result.assets[0];
-    
+
     // Check file size
     if (file.fileSize && file.fileSize > MAX_FILE_SIZE) {
       Alert.alert('File too large', `Please select a file smaller than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
@@ -79,7 +79,7 @@ export const useTasks = () => {
 
   const takePhoto = useCallback(async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-    
+
     if (!permissionResult.granted) {
       Alert.alert('Permission required', 'We need access to your camera to take photos');
       return null;
@@ -94,7 +94,7 @@ export const useTasks = () => {
     if (result.canceled) return null;
 
     const file = result.assets[0];
-    
+
     // For iOS, copy the file to a permanent location
     if (file.uri) {
       const newPath = `${FileSystem.documentDirectory}${Date.now()}_${file.fileName || 'photo.jpg'}`;
@@ -111,6 +111,7 @@ export const useTasks = () => {
     return null;
   }, []);
 
+  // Update the addTask function in useTasks.ts
   const addTask = useCallback(async (formData: TaskFormData) => {
     const newTask: Task = {
       ...formData,
@@ -120,8 +121,13 @@ export const useTasks = () => {
 
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
-    await saveTasksToStorage(updatedTasks);
-    return newTask;
+    try {
+      await saveTasksToStorage(updatedTasks);
+      return newTask;
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save task');
+      throw error;
+    }
   }, [tasks, saveTasksToStorage]);
 
   const updateTask = useCallback(async (id: string, formData: TaskFormData) => {
@@ -138,7 +144,7 @@ export const useTasks = () => {
     const updatedTasks = [...tasks];
     updatedTasks[taskIndex] = updatedTask;
     setTasks(updatedTasks);
-    
+
     // Delete old media if it was replaced
     if (oldMediaUri && oldMediaUri !== formData.mediaUri) {
       await deleteMediaFile(oldMediaUri);
@@ -162,6 +168,24 @@ export const useTasks = () => {
     await saveTasksToStorage(updatedTasks);
   }, [tasks, saveTasksToStorage]);
 
+  const loadTasksFromStorage = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const loadedTasks = await loadTasks();
+      setTasks(loadedTasks);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to load tasks');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Run initial load
+  useEffect(() => {
+    loadTasksFromStorage();
+  }, []);
+
+
   return {
     tasks,
     isLoading,
@@ -170,5 +194,6 @@ export const useTasks = () => {
     deleteTask,
     pickMedia,
     takePhoto,
+     loadTasks: loadTasksFromStorage, 
   };
 };

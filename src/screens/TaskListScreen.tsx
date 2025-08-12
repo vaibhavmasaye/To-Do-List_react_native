@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, FlatList, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, TouchableOpacity, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { useTasks } from '../hooks/useTasks';
 import { TaskItem } from '../components/TaskItem';
 import { EmptyState } from '../components/EmptyState';
@@ -8,12 +8,12 @@ import { COLORS, SHADOWS, SPACING } from '../constants/theme';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation ,useIsFocused} from '@react-navigation/native';
 
 type TaskListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'TaskList'>;
 
 export const TaskListScreen: React.FC = () => {
-  const { tasks, isLoading, deleteTask } = useTasks();
+  const { tasks, isLoading, deleteTask ,loadTasks} = useTasks();
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const navigation = useNavigation<TaskListScreenNavigationProp>();
 
@@ -28,13 +28,24 @@ export const TaskListScreen: React.FC = () => {
     navigation.navigate('TaskDetail', { taskId });
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  const isFocused = useIsFocused(); // Track screen focus
+
+  // Add this useEffect to reload tasks when screen comes into focus
+  useEffect(() => {
+    if (isFocused) {
+      loadTasks();
+    }
+  }, [isFocused]);
+
+
+ if (isLoading) {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color={COLORS.primary} />
+      <Text style={{ marginTop: SPACING.medium }}>Loading your tasks...</Text>
+    </View>
+  );
+}
 
   return (
     <View style={styles.container}>

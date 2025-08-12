@@ -1,17 +1,17 @@
 export const COLORS = {
-  primary: '#5E60CE',
-  primaryLight: '#8A89F7',
-  secondary: '#4EA8DE',
-  accent: '#FF6B6B',
-  background: '#F8F9FA',
-  text: '#212529',
-  textSecondary: '#6C757D',
-  border: '#DEE2E6',
+  primary: '#6366F1',  // Updated to more modern indigo
+  primaryLight: '#2849eeff',
+  secondary: '#60A5FA',
+  accent: '#F87171',
+  background: '#F9FAFB',
+  text: '#1F2937',
+  textSecondary: '#6B7280',
+  border: '#E5E7EB',
   white: '#FFFFFF',
   black: '#000000',
-  success: '#28A745',
-  warning: '#FFC107',
-  danger: '#DC3545',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
 };
 
 export const SIZES = {

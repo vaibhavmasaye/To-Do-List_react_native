@@ -15,7 +15,7 @@ type TaskDetailScreenRouteProp = RouteProp<RootStackParamList, 'TaskDetail'>;
 export const TaskDetailScreen: React.FC = () => {
   const { params } = useRoute<TaskDetailScreenRouteProp>();
   const navigation = useNavigation();
-  const { tasks, addTask, updateTask, pickMedia, takePhoto } = useTasks();
+  const { tasks, addTask, updateTask, pickMedia, takePhoto , loadTasks} = useTasks();
   
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
@@ -81,6 +81,7 @@ export const TaskDetailScreen: React.FC = () => {
       } else {
         await addTask(formData);
       }
+      await loadTasks(); // Refresh tasks before navigating back
       navigation.goBack();
     } catch (error) {
       Alert.alert('Error', 'Failed to save task');
